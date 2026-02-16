@@ -1,49 +1,47 @@
 import requests
-from utils.config import USAJOBS_API_KEY
+from utils.config import RAPIDAPI_KEY
 
-# import http.client
-
-# conn = http.client.HTTPSConnection("jsearch.p.rapidapi.com")
-
-# headers = {
-#     'x-rapidapi-key': "69bbcbdaaemsh61fb2f8e0bc8e83p1a10f3jsn0010555c1646",
-#     'x-rapidapi-host': "jsearch.p.rapidapi.com"
-# }
-
-# conn.request("GET", "/search?query=developer%20jobs%20in%20chicago&page=1&num_pages=1&country=us&date_posted=all", headers=headers)
-
-# res = conn.getresponse()
-# data = res.read()
-
-# print(data.decode("utf-8"))
-
-def fetch_usajobs(keyword, location, results_per_page=5):
+def fetch_jobs(query, location="", num_pages=1):
+    """
+    Fetch job listings from JSearch (RapidAPI).
+    Returns a list of job dicts with normalized keys.
+    """
+    url = "https://jsearch.p.rapidapi.com/search"
     headers = {
-        'Authorization-Key' : USAJOBS_API_KEY,
-        'User-Agent': "yadnyawalka7@gmail.com",  
-        'Host': "data.usajobs.gov"
-        
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": "jsearch.p.rapidapi.com"
     }
     params = {
-        'keyword' : keyword,
-        'LocationNamer': location,
-        'ResultsPerPage': results_per_page
+        "query": f"{query} in {location}" if location else query,
+        "page": 1,
+        "num_pages": num_pages,
+        "country": "us",
+        "date_posted": "all"
     }
 
-    url = f"https://data.usajobs.gov/api/search?{keyword}&LocationName={location}&ResultsPerPage={results_per_page}"
-    response = requests.get(url, headers = headers)
+    response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 200:
-        return response.json().get('SearchResult', {}).get('SearchResultItems', [])
+        data = response.json().get("data", [])
+        # Normalize into a simpler format
+        jobs = []
+        for item in data:
+            jobs.append({
+                "title": item.get("job_title", "Unknown"),
+                "company": item.get("employer_name", "Unknown"),
+                "location": item.get("job_city", "") + ", " + item.get("job_state", ""),
+                "description": item.get("job_description", ""),
+                "apply_link": item.get("job_apply_link", ""),
+                "posted": item.get("job_posted_at_datetime_utc", ""),
+                "employment_type": item.get("job_employment_type", ""),
+            })
+        return jobs
     else:
+        print(f"JSearch API error: {response.status_code}")
         return []
 
 
 if __name__ == "__main__":
-    jobs = fetch_usajobs("business analyst", location="San Francisco", results_per_page=10)
+    jobs = fetch_jobs("business analyst", location="San Francisco")
     for job in jobs:
-        title = job['MatchedObjectDescriptor']['PositionTitle']
-        agency = job['MatchedObjectDescriptor']['OrganizationName']
-        print(f"{title} at {agency}")
-
-
+        print(f"{job['title']} at {job['company']}")
