@@ -12,7 +12,7 @@ def run_pipeline(keyword="business analyst", location="New York", resume_text=No
     # Step 1: Fetch job posts from JSearch
     job_posts = fetch_jobs(keyword, location)
     if not job_posts:
-        return "❌ No job posts found for this search."
+        return [], None
 
     job = job_posts[0]
     job_description = job["description"]
@@ -43,12 +43,20 @@ def run_pipeline(keyword="business analyst", location="New York", resume_text=No
     )
     result = crew.kickoff()
 
-    # Build a nice output header
-    header = f"### 🎯 Job: {job_title} at {company_name}\n---\n"
-    return header + str(result)
+    # Extract individual task outputs
+    task_outputs = result.tasks_output
+    agent_results = {
+        "job_title": job_title,
+        "company": company_name,
+        "jd_analysis": str(task_outputs[0]) if len(task_outputs) > 0 else "",
+        "resume_cover_letter": str(task_outputs[1]) if len(task_outputs) > 1 else "",
+        "outreach_message": str(task_outputs[2]) if len(task_outputs) > 2 else "",
+    }
+
+    return job_posts, agent_results
 
 
 if __name__ == "__main__":
-    result = run_pipeline()
+    jobs, results = run_pipeline()
     print("\n=== FINAL OUTPUT ===\n")
-    print(result)
+    print(results)

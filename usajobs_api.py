@@ -26,14 +26,17 @@ def fetch_jobs(query, location="", num_pages=1):
         # Normalize into a simpler format
         jobs = []
         for item in data:
+            city = item.get("job_city") or ""
+            state = item.get("job_state") or ""
+            location_str = f"{city}, {state}".strip(", ")
             jobs.append({
-                "title": item.get("job_title", "Unknown"),
-                "company": item.get("employer_name", "Unknown"),
-                "location": item.get("job_city", "") + ", " + item.get("job_state", ""),
-                "description": item.get("job_description", ""),
-                "apply_link": item.get("job_apply_link", ""),
-                "posted": item.get("job_posted_at_datetime_utc", ""),
-                "employment_type": item.get("job_employment_type", ""),
+                "title": item.get("job_title") or "Unknown",
+                "company": item.get("employer_name") or "Unknown",
+                "location": location_str,
+                "description": item.get("job_description") or "",
+                "apply_link": item.get("job_apply_link") or "",
+                "posted": item.get("job_posted_at_datetime_utc") or "",
+                "employment_type": item.get("job_employment_type") or "",
             })
         return jobs
     else:

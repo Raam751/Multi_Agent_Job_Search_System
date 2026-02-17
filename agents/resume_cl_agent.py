@@ -1,19 +1,18 @@
-from crewai import Agent, Task
-from langchain_google_genai import ChatGoogleGenerativeAI
+from crewai import Agent, Task, LLM
 from utils.config import GEMINI_API_KEY
 
 def _get_llm():
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
-        temperature=0.3,
-        google_api_key=GEMINI_API_KEY
+    return LLM(
+        model="gemini/gemini-2.5-flash",
+        api_key=GEMINI_API_KEY,
+        temperature=0.3
     )
 
 def get_resume_cl_agent():
     return Agent(
         role="Resume & Cover Letter Writer",
         goal="Customize application materials to match job descriptions",
-        backstory="You're an expert in professional writing and tailoring resumes for job applications, especially in government and tech roles.",
+        backstory="You're an expert in professional writing and tailoring resumes for job applications, especially in tech and business roles.",
         llm=_get_llm(),
         verbose=True
     )

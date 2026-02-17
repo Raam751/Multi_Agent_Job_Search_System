@@ -1,19 +1,18 @@
-from crewai import Agent, Task
-from langchain_google_genai import ChatGoogleGenerativeAI
+from crewai import Agent, Task, LLM
 from utils.config import GEMINI_API_KEY
 
 def _get_llm():
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
-        temperature=0.5,
-        google_api_key=GEMINI_API_KEY
+    return LLM(
+        model="gemini/gemini-2.5-flash",
+        api_key=GEMINI_API_KEY,
+        temperature=0.5
     )
 
 def get_messaging_agent():
     return Agent(
         role="Outreach Message Writer",
         goal="Draft personalized messages for job outreach",
-        backstory="You're a professional career coach skilled in writing effective cold emails and outreach messages for job seekers in tech and government.",
+        backstory="You're a professional career coach skilled in writing effective cold emails and outreach messages for job seekers in tech and business.",
         llm=_get_llm(),
         verbose=True
     )
