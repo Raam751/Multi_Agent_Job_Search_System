@@ -1,6 +1,6 @@
 # 🤖 AI Job Hunt Assistant
 
-A multi-agent AI system built with **CrewAI** and **Google Gemini** that automates the job hunting process for US federal government positions.
+A multi-agent AI system built with **CrewAI** and **Google Gemini** that automates the job hunting process for US job positions.
 
 ## Features
 
